@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.dubbo.demo.consumer;
+package org.apache.dubbo.example.consumer;
 
 import org.apache.dubbo.demo.DemoService;
 import org.apache.dubbo.demo.GreetingService;

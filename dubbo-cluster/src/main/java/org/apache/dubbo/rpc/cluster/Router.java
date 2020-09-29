@@ -25,6 +25,7 @@ import java.util.List;
 
 /**
  * Router. (SPI, Prototype, ThreadSafe)
+ * Router 负责从多个 Invoker 中按路由规则选出子集，比如读写分离，应用隔离等
  * <p>
  * <a href="http://en.wikipedia.org/wiki/Routing">Routing</a>
  *

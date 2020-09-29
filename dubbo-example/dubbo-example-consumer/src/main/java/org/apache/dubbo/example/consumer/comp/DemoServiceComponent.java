@@ -14,11 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.dubbo.demo.consumer.comp;
+package org.apache.dubbo.example.consumer.comp;
 
 import org.apache.dubbo.config.annotation.DubboReference;
-import org.apache.dubbo.demo.DemoService;
 
+import org.apache.dubbo.example.provider.service.DemoService;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.CompletableFuture;

@@ -14,12 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.dubbo.demo.consumer;
+package org.apache.dubbo.example.consumer;
 
 import org.apache.dubbo.config.spring.context.annotation.EnableDubbo;
-import org.apache.dubbo.demo.DemoService;
-import org.apache.dubbo.demo.consumer.comp.DemoServiceComponent;
+import org.apache.dubbo.example.consumer.comp.DemoServiceComponent;
 
+import org.apache.dubbo.example.provider.service.DemoService;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -42,9 +42,9 @@ public class Application {
     }
 
     @Configuration
-    @EnableDubbo(scanBasePackages = "org.apache.dubbo.demo.consumer.comp")
+    @EnableDubbo(scanBasePackages = "org.apache.dubbo.example.consumer.comp")
     @PropertySource("classpath:/spring/dubbo-consumer.properties")
-    @ComponentScan(value = {"org.apache.dubbo.demo.consumer.comp"})
+    @ComponentScan(value = {"org.apache.dubbo.example.consumer.comp"})
     static class ConsumerConfiguration {
 
     }

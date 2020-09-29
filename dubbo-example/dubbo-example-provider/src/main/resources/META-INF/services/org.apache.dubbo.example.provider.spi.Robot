@@ -1,2 +1,2 @@
-org.apache.spi.OptimusPrime
-org.apache.spi.Bumblebee
+org.apache.dubbo.example.provider.spi.impl.Bumblebee
+org.apache.dubbo.example.provider.spi.impl.Bumblebee

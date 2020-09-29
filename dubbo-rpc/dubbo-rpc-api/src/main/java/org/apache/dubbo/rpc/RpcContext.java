@@ -50,6 +50,7 @@ import static org.apache.dubbo.rpc.Constants.RETURN_KEY;
  * Note: RpcContext is a temporary state holder. States in RpcContext changes every time when request is sent or received.
  * For example: A invokes B, then B invokes C. On service B, RpcContext saves invocation info from A to B before B
  * starts invoking C, and saves invocation info from B to C after B invokes C.
+ * RpcContext 是一个 ThreadLocal 的临时状态记录器，当接收到 RPC 请求，或发起 RPC 请求时，RpcContext 的状态都会变化。
  *
  * @export
  * @see org.apache.dubbo.rpc.filter.ContextFilter
@@ -486,7 +487,7 @@ public class RpcContext {
 
     /**
      * also see {@link #getObjectAttachment(String)}.
-     *
+     * rpc 接收后取值
      * @param key
      * @return attachment
      */
@@ -511,7 +512,7 @@ public class RpcContext {
 
     /**
      * set attachment.
-     *
+     * rpc 调用前设置值
      * @param key
      * @param value
      * @return context
