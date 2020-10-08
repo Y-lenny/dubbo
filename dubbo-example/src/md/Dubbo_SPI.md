@@ -4,12 +4,12 @@
 #### 1. 概述
 Dubbo 项目地址：[https://github.com/Y-lenny/dubbo.git](https://github.com/Y-lenny/dubbo.git)
 >以上地址是以源地址fork出来，后续源码解析、注释将会基于此进行编辑
-#### 1.1 简单介绍
+##### 1.1 简单介绍
 SPI全称Service Provider Interface，是Java提供的一套用来被第三方实现或者扩展的API，它可以用来启用框架扩展和替换组建。
 整体机制图如下：spi 整体机制图.png
 > - Java SPI是基于"基于接口的编程+策略模式+配置文件"组合实现的动态加载机制。
 > - Java SPI就是提供这样的一个机制：为某个接口寻找服务实现的机制。有点类似IOC的思想，就是将装配的控制权移到程序之外，在模块化设计中这个机制尤其重要。所以SPI的核心思想就是解耦。
-#### 1.2 SPI 使用场景
+##### 1.2 SPI 使用场景
 1. 数据库驱动加载接口实现类的加载JDBC加载不同类型数据库的驱动
 2. 日志门面接口实现类加载SLF4J加载不同提供商的日志实现类
 3. Spring中大量使用了SPI,比如：对servlet3.0规范对ServletContainerInitializer的实现、自动类型转换Type Conversion SPI(Converter SPI、Formatter SPI)等
@@ -183,7 +183,7 @@ public class SpringFactoriesLoader{
 ##### 4.1
 略... 参见：DubboSpiTest.java类使用
 ##### 4.2 
-略... 参见：ExtensionLoader.java类注释
+略... 参见：ExtensionLoader.java类中getExtension()方法入口
 ##### 4.3 总结
 > 1. JDK 标准的 SPI 会一次性实例化扩展点所有实现，如果有扩展实现初始化很耗时，但如果没用上也加载，会很浪费资源。
 > 2. 如果扩展点加载失败，连扩展点的名称都拿不到了。比如：JDK 标准的 ScriptEngine，通过 getName() 获取脚本类型的名称，但如果 RubyScriptEngine 因为所依赖的 jruby.jar 不存在，导致 RubyScriptEngine 类加载失败，这个失败原因被吃掉了，和 ruby 对应不起来，当用户执行 ruby 脚本时，会报不支持 ruby，而不是真正失败的原因。
