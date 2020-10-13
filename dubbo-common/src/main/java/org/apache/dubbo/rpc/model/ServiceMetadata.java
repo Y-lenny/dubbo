@@ -36,6 +36,7 @@ public class ServiceMetadata extends BaseServiceMetadata {
     private Object target;
 
     /* will be transferred to remote side */
+    /* 发送至远端 */
     private final Map<String, Object> attachments = new ConcurrentHashMap<String, Object>();
     /* used locally*/
     private final Map<String, Object> attributeMap = new ConcurrentHashMap<String, Object>();

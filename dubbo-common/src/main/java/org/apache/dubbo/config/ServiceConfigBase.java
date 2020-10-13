@@ -210,6 +210,7 @@ public abstract class ServiceConfigBase<T> extends AbstractServiceConfig {
 
     public void completeCompoundConfigs() {
         super.completeCompoundConfigs(provider);
+        // 下面几个 if 语句用于检测 provider、application 等核心配置类对象是否为空，若为空，则尝试从其他配置类对象中获取相应的实例。
         if (provider != null) {
             if (protocols == null) {
                 setProtocols(provider.getProtocols());

@@ -45,7 +45,7 @@ public class DubboBootstrapApplicationListener extends OneTimeExecutionApplicati
     public DubboBootstrapApplicationListener() {
         this.dubboBootstrap = DubboBootstrap.getInstance();
     }
-
+    // Dubbo 接收Spring 上下文事件，执行一系列操作：刷新、关闭
     @Override
     public void onApplicationContextEvent(ApplicationContextEvent event) {
         if (event instanceof ContextRefreshedEvent) {
