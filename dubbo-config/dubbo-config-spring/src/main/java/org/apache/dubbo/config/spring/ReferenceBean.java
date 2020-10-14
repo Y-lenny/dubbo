@@ -96,6 +96,10 @@ public class ReferenceBean<T> extends ReferenceConfig<T> implements FactoryBean,
         beansOfTypeIncludingAncestors(applicationContext, SslConfig.class);
     }
 
+    /**
+     * 服务引入入口
+     * @throws Exception
+     */
     @Override
     @SuppressWarnings({"unchecked"})
     public void afterPropertiesSet() throws Exception {

@@ -103,6 +103,7 @@ public class ServiceBean<T> extends ServiceConfig<T> implements InitializingBean
 
     /**
      * @since 2.6.5
+     * 服务导出入口
      */
     @Override
     public void exported() {
