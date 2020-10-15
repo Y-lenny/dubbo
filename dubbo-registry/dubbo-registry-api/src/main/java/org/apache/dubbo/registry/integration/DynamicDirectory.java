@@ -82,13 +82,16 @@ public abstract class DynamicDirectory<T> extends AbstractDirectory<T> implement
      * Rule one: for a certain provider <ip:port,timeout=100>
      * Rule two: for all providers <* ,timeout=5000>
      */
+    // 这个初始化值是null并且中间处理过程可能会被赋值为nul，所以请使用局部变量进行应用他
     protected volatile List<Configurator> configurators; // The initial value is null and the midway may be assigned to null, please use the local variable reference
 
     // Map<url, Invoker> cache service url to invoker mapping.
+    // 这个初始化值是null并且中间处理过程可能会被赋值为nul，所以请使用局部变量进行应用他
     protected volatile Map<URL, Invoker<T>> urlInvokerMap; // The initial value is null and the midway may be assigned to null, please use the local variable reference
     protected volatile List<Invoker<T>> invokers;
 
     // Set<invokerUrls> cache invokeUrls to invokers mapping.
+    // 这个初始化值是null并且中间处理过程可能会被赋值为nul，所以请使用局部变量进行应用他
     protected volatile Set<URL> cachedInvokerUrls; // The initial value is null and the midway may be assigned to null, please use the local variable reference
 
     protected ServiceInstancesChangedListener serviceListener;

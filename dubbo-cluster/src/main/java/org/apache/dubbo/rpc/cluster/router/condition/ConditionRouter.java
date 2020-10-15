@@ -73,6 +73,7 @@ public class ConditionRouter extends AbstractRouter {
         this.priority = url.getParameter(PRIORITY_KEY, 0);
         this.force = url.getParameter(FORCE_KEY, false);
         this.enabled = url.getParameter(ENABLED_KEY, true);
+        // 获取路由规则并进行解析
         init(url.getParameterAndDecoded(RULE_KEY));
     }
 
@@ -85,9 +86,12 @@ public class ConditionRouter extends AbstractRouter {
             int i = rule.indexOf("=>");
             String whenRule = i < 0 ? null : rule.substring(0, i).trim();
             String thenRule = i < 0 ? rule.trim() : rule.substring(i + 2).trim();
+            // 解析服务消费者匹配规则
             Map<String, MatchPair> when = StringUtils.isBlank(whenRule) || "true".equals(whenRule) ? new HashMap<String, MatchPair>() : parseRule(whenRule);
+            // 解析服务提供者匹配规则
             Map<String, MatchPair> then = StringUtils.isBlank(thenRule) || "false".equals(thenRule) ? null : parseRule(thenRule);
             // NOTE: It should be determined on the business level whether the `When condition` can be empty or not.
+            // 将解析出的匹配规则分别赋值给 whenCondition 和 thenCondition 成员变量
             this.whenCondition = when;
             this.thenCondition = then;
         } catch (ParseException e) {
@@ -97,6 +101,7 @@ public class ConditionRouter extends AbstractRouter {
 
     private static Map<String, MatchPair> parseRule(String rule)
             throws ParseException {
+        // 定义条件映射集合
         Map<String, MatchPair> condition = new HashMap<String, MatchPair>();
         if (StringUtils.isBlank(rule)) {
             return condition;
@@ -105,6 +110,18 @@ public class ConditionRouter extends AbstractRouter {
         MatchPair pair = null;
         // Multiple values
         Set<String> values = null;
+        // 通过正则表达式匹配路由规则，ROUTE_PATTERN = ([&!=,]*)\s*([^&!=,\s]+)
+        // 这个表达式看起来不是很好理解，第一个括号内的表达式用于匹配"&", "!", "=" 和 "," 等符号。
+        // 第二括号内的用于匹配英文字母，数字等字符。举个例子说明一下：
+        //    host = 2.2.2.2 & host != 1.1.1.1 & method = hello
+        // 匹配结果如下：
+        //     括号一      括号二
+        // 1.  null       host
+        // 2.   =         2.2.2.2
+        // 3.   &         host
+        // 4.   !=        1.1.1.1
+        // 5.   &         method
+        // 6.   =         hello
         final Matcher matcher = ROUTE_PATTERN.matcher(rule);
         while (matcher.find()) { // Try to match one by one
             String separator = matcher.group(1);
@@ -176,19 +193,32 @@ public class ConditionRouter extends AbstractRouter {
             return invokers;
         }
         try {
+            // 先对服务消费者条件进行匹配，如果匹配失败，表明服务消费者 url 不符合匹配规则，
+            // 无需进行后续匹配，直接返回 Invoker 列表即可。比如下面的规则：
+            //     host = 10.20.153.10 => host = 10.0.0.10
+            // 这条路由规则希望 IP 为 10.20.153.10 的服务消费者调用 IP 为 10.0.0.10 机器上的服务。
+            // 当消费者 ip 为 10.20.153.11 时，matchWhen 返回 false，表明当前这条路由规则不适用于
+            // 当前的服务消费者，此时无需再进行后续匹配，直接返回即可。
             if (!matchWhen(url, invocation)) {
                 return invokers;
             }
             List<Invoker<T>> result = new ArrayList<Invoker<T>>();
+            // 服务提供者匹配条件未配置，表明对指定的服务消费者禁用服务，也就是服务消费者在黑名单中
             if (thenCondition == null) {
                 logger.warn("The current consumer in the service blacklist. consumer: " + NetUtils.getLocalHost() + ", service: " + url.getServiceKey());
                 return result;
             }
+            // 这里可以简单的把 Invoker 理解为服务提供者，现在使用服务提供者匹配规则对
+            // Invoker 列表进行匹配
             for (Invoker<T> invoker : invokers) {
+                // 若匹配成功，表明当前 Invoker 符合服务提供者匹配规则。
+                // 此时将 Invoker 添加到 result 列表中
                 if (matchThen(invoker.getUrl(), url)) {
                     result.add(invoker);
                 }
             }
+            // 返回匹配结果，如果 result 为空列表，且 force = true，表示强制返回空列表，
+            // 否则路由结果为空的路由规则将自动失效
             if (!result.isEmpty()) {
                 return result;
             } else if (force) {
@@ -198,6 +228,7 @@ public class ConditionRouter extends AbstractRouter {
         } catch (Throwable t) {
             logger.error("Failed to execute condition router rule: " + getUrl() + ", invokers: " + invokers + ", cause: " + t.getMessage(), t);
         }
+        // 原样返回，此时 force = false，表示该条路由规则失效
         return invokers;
     }
 
@@ -214,10 +245,14 @@ public class ConditionRouter extends AbstractRouter {
     }
 
     boolean matchWhen(URL url, Invocation invocation) {
+        // 服务消费者条件为 null 或空，均返回 true，比如：
+        //     => host != 172.22.3.91
+        // 表示所有的服务消费者都不得调用 IP 为 172.22.3.91 的机器上的服务
         return CollectionUtils.isEmptyMap(whenCondition) || matchCondition(whenCondition, url, null, invocation);
     }
 
     private boolean matchThen(URL url, URL param) {
+        // 服务提供者条件为 null 或空，表示禁用服务
         return CollectionUtils.isNotEmptyMap(thenCondition) && matchCondition(thenCondition, url, param, null);
     }
 
@@ -263,6 +298,7 @@ public class ConditionRouter extends AbstractRouter {
         final Set<String> mismatches = new HashSet<String>();
 
         private boolean isMatch(String value, URL param) {
+            // 情况一：matches 非空，mismatches 为空
             if (!matches.isEmpty() && mismatches.isEmpty()) {
                 for (String match : matches) {
                     if (UrlUtils.isMatchGlobPattern(match, value, param)) {
@@ -271,7 +307,7 @@ public class ConditionRouter extends AbstractRouter {
                 }
                 return false;
             }
-
+            // 情况二：matches 为空，mismatches 非空
             if (!mismatches.isEmpty() && matches.isEmpty()) {
                 for (String mismatch : mismatches) {
                     if (UrlUtils.isMatchGlobPattern(mismatch, value, param)) {
@@ -280,7 +316,7 @@ public class ConditionRouter extends AbstractRouter {
                 }
                 return true;
             }
-
+            // 情况三：matches 非空，mismatches 非空
             if (!matches.isEmpty() && !mismatches.isEmpty()) {
                 //when both mismatches and matches contain the same value, then using mismatches first
                 for (String mismatch : mismatches) {
@@ -295,6 +331,7 @@ public class ConditionRouter extends AbstractRouter {
                 }
                 return false;
             }
+            // 情况四：matches 和 mismatches 均为空，此时返回 false
             return false;
         }
     }
