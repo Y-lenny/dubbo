@@ -35,16 +35,20 @@ public class AllChannelHandler extends WrappedChannelHandler {
         super(handler, url);
     }
 
+    /** 处理连接事件 */
     @Override
     public void connected(Channel channel) throws RemotingException {
+        // 获取线程池
         ExecutorService executor = getExecutorService();
         try {
+            // 将连接事件派发到线程池中处理
             executor.execute(new ChannelEventRunnable(channel, handler, ChannelState.CONNECTED));
         } catch (Throwable t) {
             throw new ExecutionException("connect event", channel, getClass() + " error when process connected event .", t);
         }
     }
 
+    /** 处理断开事件 */
     @Override
     public void disconnected(Channel channel) throws RemotingException {
         ExecutorService executor = getExecutorService();
@@ -55,13 +59,18 @@ public class AllChannelHandler extends WrappedChannelHandler {
         }
     }
 
+    /** 处理请求和响应消息，这里的 message 变量类型可能是 Request，也可能是 Response */
     @Override
     public void received(Channel channel, Object message) throws RemotingException {
         ExecutorService executor = getPreferredExecutorService(message);
         try {
+            // 将请求和响应消息派发到线程池中处理
             executor.execute(new ChannelEventRunnable(channel, handler, ChannelState.RECEIVED, message));
         } catch (Throwable t) {
+            // 如果通信方式为双向通信，此时将 Server side ... threadpool is exhausted
+            // 错误信息封装到 Response 中，并返回给服务消费方。
         	if(message instanceof Request && t instanceof RejectedExecutionException){
+                // 返回包含错误信息的 Response 对象
                 sendFeedback(channel, (Request) message, t);
                 return;
         	}
@@ -69,6 +78,7 @@ public class AllChannelHandler extends WrappedChannelHandler {
         }
     }
 
+    /** 处理异常信息 */
     @Override
     public void caught(Channel channel, Throwable exception) throws RemotingException {
         ExecutorService executor = getExecutorService();
