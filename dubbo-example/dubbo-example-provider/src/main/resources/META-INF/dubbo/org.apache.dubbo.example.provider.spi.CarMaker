@@ -1,0 +1,1 @@
+raceCarMaker = org.apache.dubbo.example.provider.spi.impl.RaceCarMaker

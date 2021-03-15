@@ -1,0 +1,2 @@
+adaptiveWheelMaker = org.apache.dubbo.example.provider.spi.impl.AdaptiveWheelMaker
+michelinWheelMaker = org.apache.dubbo.example.provider.spi.impl.MichelinwheelMaker
